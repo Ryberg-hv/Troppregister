@@ -6238,6 +6238,10 @@ init();
    höj VERSION i sw.js). Efter upplåsning visas det som är nytt sedan
    användaren senast öppnade appen. Ny installation visar ingen notis. */
 const APP_CHANGELOG = [
+  {version:'2026-10-10.2', title:'Renare meny', items:[
+    'Förklarande texter i menyn är borttagna så att den blir lugnare att läsa.',
+    'Uppdateringsnotisen "Det här är nytt" visas nu efter varje ny version.'
+  ]},
   {version:'2026-10-10', title:'Troppregistret 1.0', items:[
     'Register för STAB/Tross-troppen, byggt som Personalregistret: grupperna Chef, STAB grupp, Sjukvårdsgrupp, Kokgrupp och Packgrupp, samt Personalreserv, Ny personal och Avveckling.',
     'Exporteras och importeras krypterat via Slack, och skickas vidare till Kompaniregistret.',
@@ -6246,7 +6250,7 @@ const APP_CHANGELOG = [
 ];
 const APP_VERSION = APP_CHANGELOG[0].version;
 /* Måste vara samma som VERSION i sw.js. */
-const SW_CACHE_VERSION = 'troppregister-v2';
+const SW_CACHE_VERSION = 'troppregister-v3';
 const LS_SEEN_VERSION = 'troppregister_seen_version';
 var appWasInstalledBefore; // sätts i init(), som körs före den här raden
 function maybeShowWhatsNew(){
