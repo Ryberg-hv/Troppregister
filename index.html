@@ -2890,7 +2890,6 @@ function renderTopbar(){
     html += `<button class="btn small" onclick="goHome()">Startsida</button>`;
     if(registerList.length){
       const options = registerList.map(r=>`<option value="${esc(r.key)}" ${r.key===currentFileName?'selected':''}>${esc(r.label)}</option>`).join('');
-      html += `<span class="status" style="align-self:center;">Välj register</span>`;
       html += `<select class="btn small" id="registerSelect" title="Byt register" onchange="onRegisterSelect(this.value)" style="max-width:190px;">${options}</select>`;
     }
     html += `<button class="btn small" onclick="openNewRegisterModal()" title="Skapa ett nytt, separat register">+ Nytt register</button>`;
@@ -2905,7 +2904,6 @@ function renderTopbar(){
     html += `<button class="btn small" onclick="toggleColumnPanel()">Ordna uppgifter</button>`;
     html += `<button class="btn small" onclick="lockApp()" title="Lås appen">🔒 Lås</button>`;
     html += `<button class="btn small" onclick="startChangePin()">Byt PIN-kod</button>`;
-    html += `<span class="status" id="saveStatus">Sparat</span>`;
     html += `<button class="btn small" onclick="exportJson()">Exportera JSON</button>`;
     html += `<label class="btn small" style="margin:0;">Importera<input type="file" accept="application/json" style="display:none" onchange="importJson(this.files[0])"></label>`;
   }
@@ -6248,7 +6246,7 @@ const APP_CHANGELOG = [
 ];
 const APP_VERSION = APP_CHANGELOG[0].version;
 /* Måste vara samma som VERSION i sw.js. */
-const SW_CACHE_VERSION = 'troppregister-v1';
+const SW_CACHE_VERSION = 'troppregister-v2';
 const LS_SEEN_VERSION = 'troppregister_seen_version';
 var appWasInstalledBefore; // sätts i init(), som körs före den här raden
 function maybeShowWhatsNew(){
