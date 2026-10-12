@@ -908,6 +908,8 @@ const DEFAULT_COMPETENCIES = [
   {id:'skarpskytt', label:'Skarpskytt', expiry:false, showInStats:true},
   {id:'prickskytt', label:'Prickskytt', expiry:false, showInStats:true},
   {id:'sjukvard', label:'Sjukvård', expiry:false, showInStats:true},
+  {id:'ssk', label:'SSK', expiry:false, showInStats:true},
+  {id:'instruktor', label:'Instruktör', expiry:false, showInStats:true},
   {id:'aktiv_instruktor', label:'Aktiv instruktör', expiry:false, showInStats:true},
   {id:'gu', label:'GU', expiry:false, showInStats:true},
   {id:'guf', label:'GUF', expiry:false, showInStats:true},
@@ -985,7 +987,7 @@ const DEFAULT_GROUPS = [
     'SJV GrpC','Stf SJV GrpC','Komp SSK','Sold SJV','Sold SJV','Sold SJV','Sold SJV','Sold SJV','Komp SSK','SJV trsp sold','SJV trsp sold','SJV trsp sold'
   ])},
   {id:'g4', name:'Kokgrupp', kind:'standard', slots: slots([
-    'KOK GrpC','Kock','Kock','Kock','Kock','Livsmedelssold','Livsmedelssold','Livsmedelssold'
+    'KOK GrpC','Kock','Kock','Kock','Kock','Livsmedelssold','Livsmedelssold'
   ])},
   {id:'g5', name:'Packgrupp', kind:'standard', slots: slots([
     'Pack GrpC','Sold FOFÖ','Sold FOFÖ','Sold FOFÖ','Mekaniker','Mekaniker'
@@ -1294,12 +1296,15 @@ function hydrateData(parsed){
   ensureBandvagnOrder(parsed);
   ensureAdr13Order(parsed);
   ensureKomp2026Order(parsed);
+  ensureInstruktorOrder(parsed);
   ensureCompetencyStatsFlags(parsed.competencies);
   if(!parsed.mal) parsed.mal = {};
   ensureNotiser(parsed);
   if(parsed.kompani===undefined) parsed.kompani = '';
   if(parsed.pluton===undefined) parsed.pluton = '';
   ensureKalAnslag(parsed);
+  ensureKok7(parsed);
+  ensureSskOrder(parsed);
   DATA = parsed;
   YEARS = computeYears();
   DATA.persons = (DATA.persons||[]).map(ensurePersonShape);
@@ -2850,8 +2855,8 @@ function primaryGroupsStatus(){
 function reserveBanner(){
   const st = primaryGroupsStatus();
   return st.full
-    ? `<div class="banner info" style="margin-bottom:16px;">Grupp 1–5 är fulltaliga (${st.filled}/${st.totalSlots}) — personalreserven kan användas.</div>`
-    : `<div class="banner info" style="margin-bottom:16px;">Grupp 1–5 har fortfarande ${st.vacant} lediga platser (${st.filled}/${st.totalSlots} fyllda). Personalreserven är avsedd att användas först när grupp 1–5 är fulltaliga.</div>`;
+    ? `<div class="banner info" style="margin-bottom:16px;">Alla grupper är fulltaliga (${st.filled}/${st.totalSlots}) — personalreserven kan användas.</div>`
+    : `<div class="banner info" style="margin-bottom:16px;">Grupperna har fortfarande ${st.vacant} lediga platser (${st.filled}/${st.totalSlots} fyllda). Personalreserven är avsedd att användas först när grupp 1–5 är fulltaliga.</div>`;
 }
 
 /* ---------- top bar ---------- */
@@ -3092,7 +3097,7 @@ function renderStandardCard(g){
     ? `<div style="padding:8px 14px;font-size:12px;color:var(--warn);">Det finns personal utan fast plats i gruppen — öppna gruppen för att tilldela plats.</div>` : '';
   const reserveNote = g.id==='g6'
     ? (()=>{ const st = primaryGroupsStatus();
-        return `<div style="padding:8px 14px;font-size:12px;color:${st.full?'var(--accent)':'var(--warn)'};">${st.full ? `Grupp 1–5 fulltaliga — reserven kan användas.` : `Grupp 1–5 har ${st.vacant} lediga platser kvar innan reserven är avsedd att användas.`}</div>`;
+        return `<div style="padding:8px 14px;font-size:12px;color:${st.full?'var(--accent)':'var(--warn)'};">${st.full ? `Alla grupper fulltaliga — reserven kan användas.` : `Grupperna har ${st.vacant} lediga platser kvar innan reserven är avsedd att användas.`}</div>`;
       })()
     : '';
   return `<div class="card kind-standard ${isCollapsed(g.id)?'collapsed':''}">
@@ -6254,6 +6259,12 @@ async function deleteRegisterByKey(key){
   } else { renderAll(); }
 }
 
+function ensureInstruktorOrder(data){
+  if(data.instruktorOrderApplied) return;
+  placeCompetencyAfter(data.competencies, 'instruktor', 'sjukvard');
+  data.instruktorOrderApplied = true;
+}
+
 /* ---------- Lämna ut uppgifter (PDF med sekretessmarkering) ---------- */
 const PDF_W = {R: [278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584, 761, 556, 556, 222, 556, 333, 1000, 556, 556, 333, 1000, 667, 333, 1000, 556, 611, 556, 556, 222, 222, 333, 333, 350, 556, 1000, 333, 1000, 500, 333, 944, 556, 500, 667, 278, 333, 556, 556, 556, 556, 260, 556, 333, 737, 370, 556, 584, 333, 737, 333, 400, 584, 333, 333, 333, 556, 537, 278, 333, 333, 365, 556, 834, 834, 834, 611, 667, 667, 667, 667, 667, 667, 1000, 722, 667, 667, 667, 667, 278, 278, 278, 278, 722, 722, 778, 778, 778, 778, 778, 584, 778, 722, 722, 722, 722, 667, 667, 611, 556, 556, 556, 556, 556, 556, 889, 500, 556, 556, 556, 556, 278, 278, 278, 278, 556, 556, 556, 556, 556, 556, 556, 584, 611, 556, 556, 556, 556, 500, 556, 500], B: [278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611, 975, 722, 722, 722, 722, 667, 611, 778, 722, 278, 556, 722, 611, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 333, 278, 333, 584, 556, 333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556, 278, 889, 611, 611, 611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584, 761, 556, 611, 278, 556, 500, 1000, 556, 556, 333, 1000, 667, 333, 1000, 611, 611, 611, 611, 278, 278, 500, 500, 350, 556, 1000, 333, 1000, 556, 333, 944, 611, 500, 667, 278, 333, 556, 556, 556, 556, 280, 556, 333, 737, 370, 556, 584, 333, 737, 333, 400, 584, 333, 333, 333, 611, 556, 278, 333, 333, 365, 556, 834, 834, 834, 611, 722, 722, 722, 722, 722, 722, 1000, 722, 667, 667, 667, 667, 278, 278, 278, 278, 722, 722, 778, 778, 778, 778, 778, 584, 778, 722, 722, 722, 722, 667, 667, 611, 556, 556, 556, 556, 556, 556, 889, 556, 556, 556, 556, 556, 278, 278, 278, 278, 611, 611, 611, 611, 611, 611, 611, 584, 611, 611, 611, 611, 611, 556, 611, 556]};
 const CP1252_EXTRA = {'€':128,'‚':130,'„':132,'…':133,'†':134,'‡':135,'‰':137,'‹':139,'‘':145,'’':146,'“':147,'”':148,'•':149,'–':150,'—':151,'™':153,'›':155};
@@ -6511,7 +6522,38 @@ init();
    Lägg till en ny post ÖVERST i APP_CHANGELOG vid varje uppladdning (och
    höj VERSION i sw.js). Efter upplåsning visas det som är nytt sedan
    användaren senast öppnade appen. Ny installation visar ingen notis. */
+
+/* ---------- uppdatering 12 oktober 2026: Kokgruppen 7 rader, SSK ---------- */
+function ensureSskOrder(data){
+  if(data.sskOrderApplied) return;
+  placeCompetencyAfter(data.competencies, 'ssk', 'sjukvard');
+  data.sskOrderApplied = true;
+}
+function ensureKok7(data){
+  if(data.kok7Applied) return;
+  data.kok7Applied = true;
+  const g = (data.groups||[]).find(x=>x.id==='g4');
+  if(!g || !g.slots || g.slots.length!==8 || g.slots[7].befattning!=='Livsmedelssold') return;
+  g.slots.pop();
+  const moved = [];
+  (data.persons||[]).forEach(p=>{
+    if(p.groupId==='g4' && p.slotIndex===7){
+      const used = new Set((data.persons||[]).filter(x=>x.groupId==='g6' && x.slotIndex!=null).map(x=>x.slotIndex));
+      const res = (data.groups||[]).find(x=>x.id==='g6');
+      let free = null;
+      if(res && res.slots){ for(let i=0;i<res.slots.length;i++){ if(!used.has(i)){ free = i; break; } } }
+      p.groupId = 'g6'; p.slotIndex = free;
+      moved.push(p.namn || '(namnlös)');
+    }
+  });
+  if(moved.length) setTimeout(()=>alert('Kokgruppen har nu 7 rader. '+moved.join(', ')+' stod på den borttagna raden och har flyttats till Personalreserv.'), 800);
+}
+
 const APP_CHANGELOG = [
+  {version:'2026-10-12', title:'Justering 12 oktober 2026', items:[
+    'Kokgruppen har nu 7 rader: Kok GrpC, 4 Kock och 2 Livsmedelssold. I befintliga register tas den sista Livsmedelssold-raden bort, och står någon på den flyttas personen till Personalreserv.',
+    'Nya kompetenser: SSK (efter Sjukvård) och Instruktör (före Aktiv instruktör).'
+  ]},
   {version:'2026-10-11', title:'Lämna ut uppgifter', items:[
     'I personkortet finns knappen "Lämna ut uppgifter". Den skapar en PDF med allt som finns om personen och anger vilket register utdraget kommer från.',
     'Innan PDF:en skapas bockar du i det som omfattas av sekretess eller kan skada den enskilde. Det blir svärtat i PDF:en, och texten finns inte kvar i filen.',
@@ -6532,7 +6574,7 @@ const APP_CHANGELOG = [
 ];
 const APP_VERSION = APP_CHANGELOG[0].version;
 /* Måste vara samma som VERSION i sw.js. */
-const SW_CACHE_VERSION = 'troppregister-v5';
+const SW_CACHE_VERSION = 'troppregister-v6';
 const LS_SEEN_VERSION = 'troppregister_seen_version';
 var appWasInstalledBefore; // sätts i init(), som körs före den här raden
 function maybeShowWhatsNew(){
