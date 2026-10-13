@@ -1,7 +1,7 @@
 /* Service worker för Troppregister.
    Höj VERSION vid varje ny uppladdning så att gamla filer rensas.
    Ändra samtidigt SW_CACHE_VERSION i index.html till samma värde. */
-const VERSION = 'troppregister-v6';
+const VERSION = 'troppregister-v7';
 const CORE = [
   './',
   './index.html',
