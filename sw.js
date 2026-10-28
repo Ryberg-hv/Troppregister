@@ -1,7 +1,7 @@
 /* Service worker för Troppregister.
    Höj VERSION vid varje ny uppladdning så att gamla filer rensas.
    Ändra samtidigt SW_CACHE_VERSION i index.html till samma värde. */
-const VERSION = 'troppregister-v6';
+const VERSION = 'troppregister-v9';
 const CORE = [
   './',
   './index.html',
@@ -29,6 +29,8 @@ self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+  // Behörighetskontrollen mot GitHub ska alltid gå till nätet.
+  if (url.hostname === 'raw.githubusercontent.com' || url.hostname === 'api.github.com') return;
 
   // Själva appen: hämta ny version när det finns nät, annars den sparade.
   if (req.mode === 'navigate' || (url.origin === location.origin && url.pathname.endsWith('.html'))) {
