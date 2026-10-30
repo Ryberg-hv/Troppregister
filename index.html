@@ -15,6 +15,17 @@
 <style>
   /* Typsnittet ligger i appen — inga anrop till Google Fonts */
   @font-face{font-family:'Allerta Stencil';src:url('AllertaStencil-Regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap;}
+
+  /* MOBTAB_V1: tabeller ryms i den vita rutan på telefon */
+  @media (max-width:760px){
+    .panel{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    table.full.stats td, table.full.stats th{white-space:normal !important;padding:8px 6px;font-size:12px;overflow-wrap:anywhere;}
+    table.full.stats th{font-size:9px;letter-spacing:0;overflow-wrap:normal;word-break:normal;padding:8px 3px;}
+    table.full.stats td:first-child{font-size:11px;overflow-wrap:break-word !important;}
+    table.full.stats input[type=number]{width:56px;padding:4px 2px;}
+    table.full.stats td:first-child, table.full.stats th:first-child{position:sticky;left:0;background:var(--panel);z-index:1;}
+    table.gradeTable th, table.gradeTable td{padding:6px 6px;font-size:12px;white-space:normal !important;}
+  }
 </style>
 <script src="xlsx.full.min.js"></script>
 <style>
@@ -7165,6 +7176,9 @@ function authBoot(){
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', authBoot); else authBoot();
 
 const APP_CHANGELOG = [
+  {version:'2026-10-30.8', title:'Telefon och koder', items:[
+    'Tabellerna i Statistik ryms nu i den vita rutan på telefon. Är en tabell ändå för bred rullar den i sidled inuti rutan.'
+  ]},
   {version:'2026-10-30.3', title:'Avtalsdygn 4 eller 8', items:[
     'Nytt val: 4 eller 8 avtalsdygn. Vid 8 avtalsdygn gäller SÖF och KFÖ som tidigare. Vid 4 avtalsdygn (bevakning) finns endast KFÖ: SÖF döljs, uppfyllt avtalsår kräver bara KFÖ och blåbandare räknar KFÖ mot de fyra övningarna. Nya register frågar vid start, befintliga fortsätter med 8. Valet ändras under Avtalsdygn i menyn och kräver bekräftelse. Export och import fungerar bara mellan register med samma val.'
   ]},
@@ -7215,7 +7229,7 @@ const APP_CHANGELOG = [
 ];
 const APP_VERSION = APP_CHANGELOG[0].version;
 /* Måste vara samma som VERSION i sw.js. */
-const SW_CACHE_VERSION = 'troppregister-v17';
+const SW_CACHE_VERSION = 'troppregister-v18';
 const LS_SEEN_VERSION = 'troppregister_seen_version';
 var appWasInstalledBefore; // sätts i init(), som körs före den här raden
 function maybeShowWhatsNew(){
